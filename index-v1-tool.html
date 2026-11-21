@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>漫剧选题雷达 · 这个题材现在还值得做吗</title>
+<style>
+:root{
+  --bg:#FAFAF8; --card:#FFFFFF; --line:#E6E4DE; --line-2:#D5D2C9;
+  --text:#1F2421; --text-2:#5F635E; --text-3:#8C8F89;
+  --blue:#185FA5; --blue-bg:#E6F1FB;
+  --go:#0F6E56; --go-bg:#E1F5EE;
+  --warn:#854F0B; --warn-bg:#FAEEDA;
+  --stop:#A32D2D; --stop-bg:#FCEBEB;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg); color:var(--text); font-size:14px; line-height:1.65;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.hd{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:22px;height:22px;border-radius:6px;background:var(--text);position:relative;flex:none}
+.logo::before{content:"";position:absolute;left:5px;top:5px;width:6px;height:6px;border-radius:50%;background:#fff}
+.logo::after{content:"";position:absolute;left:5px;top:14px;width:12px;height:2px;border-radius:1px;background:#fff;opacity:.55}
+.brand b{font-size:15px;font-weight:600;letter-spacing:-.2px}
+.ver{font-size:11px;color:var(--text-3);border:1px solid var(--line);padding:1px 6px;border-radius:4px}
+.hd-meta{font-size:12px;color:var(--text-3)}
+
+.hero{padding:52px 0 20px}
+.hero h1{font-size:30px;font-weight:600;letter-spacing:-.8px;line-height:1.35}
+.hero p{margin-top:12px;color:var(--text-2);max-width:640px;font-size:14px}
+
+.input-row{display:flex;gap:10px;margin-top:26px}
+#query{
+  flex:1;height:54px;padding:0 18px;border:1px solid var(--line-2);border-radius:10px;
+  font-size:14px;background:#fff;font-family:inherit;color:var(--text);transition:.15s;
+}
+#query::placeholder{color:#A8ABA5}
+#query:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.10)}
+#go{
+  height:54px;padding:0 28px;background:var(--text);color:#fff;border:none;border-radius:10px;
+  font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;
+}
+#go:hover{background:#000}
+#go:active{transform:translateY(1px)}
+
+.plat-row{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.plat-row .lbl{font-size:12px;color:var(--text-3);margin-right:2px}
+.plat{
+  padding:5px 14px;border:1px solid var(--line-2);background:#fff;border-radius:100px;
+  font-size:12px;cursor:pointer;font-family:inherit;color:var(--text-2);transition:.15s;
+}
+.plat:hover{border-color:var(--text-3)}
+.plat.active{background:var(--text);color:#fff;border-color:var(--text)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.chip{
+  padding:7px 13px;border:1px solid var(--line);background:#fff;border-radius:8px;
+  font-size:13px;cursor:pointer;color:#40443F;transition:.15s;font-family:inherit;
+}
+.chip:hover{border-color:var(--blue);color:var(--blue);background:#F6FAFE}
+.chip .n{color:var(--text-3);font-size:11px;margin-left:5px}
+
+#result{margin-top:36px;scroll-margin-top:80px}
+.hidden{display:none}
+
+.verdict{
+  display:flex;gap:32px;align-items:flex-start;padding:30px 32px;background:#fff;
+  border:1px solid var(--line);border-radius:16px;
+}
+.score-box{text-align:center;min-width:118px;padding-right:30px;border-right:1px solid #F0EEE9;flex:none}
+.score{font-size:60px;font-weight:600;line-height:1;letter-spacing:-3px;font-variant-numeric:tabular-nums}
+.score-label{font-size:12px;color:var(--text-3);margin-top:10px;letter-spacing:.3px}
+.v-main{flex:1;min-width:0}
+.badge{
+  display:inline-block;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:500;
+  margin-bottom:10px;
+}
+.badge.go{background:var(--go-bg);color:var(--go)}
+.badge.ok{background:var(--blue-bg);color:var(--blue)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.stop{background:var(--stop-bg);color:var(--stop)}
+.v-main h3{font-size:20px;font-weight:600;letter-spacing:-.3px;margin-bottom:8px}
+.v-main h3 .sub{font-size:13px;color:var(--text-3);font-weight:400;margin-left:8px;letter-spacing:0}
+.v-text{color:var(--text-2);font-size:14px}
+
+.block{margin-top:32px}
+.block h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;letter-spacing:.2px}
+.block h4 .hint{font-weight:400;color:var(--text-3);font-size:12px;margin-left:8px}
+
+.dims{display:grid;grid-template-columns:1fr 1fr;gap:18px 32px}
+.dim-head{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:7px}
+.dim-head .k{color:var(--text-2)}
+.dim-head .v{font-variant-numeric:tabular-nums;font-weight:500;font-size:13px}
+.dim-head .v small{font-weight:400;color:var(--text-3);font-size:11px;margin-left:3px}
+.bar{height:6px;background:#F0EEE9;border-radius:100px;overflow:hidden}
+.bar-in{height:100%;border-radius:100px;width:0;transition:width .7s cubic-bezier(.2,.85,.25,1)}
+.dim-note{font-size:11px;color:var(--text-3);margin-top:6px;line-height:1.5}
+
+.callout{
+  margin-top:26px;padding:16px 18px;border-radius:10px;font-size:13px;
+  border-left:3px solid var(--blue);background:#F6FAFE;color:#204B70;
+}
+.callout.hot{border-left-color:var(--go);background:#F2FAF6;color:#0B5240}
+.callout.cold{border-left-color:var(--line-2);background:#FAFAF7;color:var(--text-2)}
+.callout b{font-weight:600}
+
+.samples{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sample{padding:16px 16px 14px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.sample .nm{font-size:13.5px;font-weight:500;line-height:1.45;margin-bottom:10px;min-height:40px}
+.sample .heat{font-size:19px;font-weight:600;color:var(--blue);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.sample .heat span{font-size:11px;font-weight:400;color:var(--text-3);margin-left:4px;letter-spacing:0}
+.sample .pf{font-size:11px;color:var(--text-3);margin-top:6px}
+.sample .why{font-size:11.5px;color:var(--text-2);margin-top:8px;padding-top:8px;border-top:1px solid #F2F0EB;line-height:1.5}
+
+.names{display:flex;flex-wrap:wrap;gap:8px}
+.nm-pill{
+  padding:9px 14px;background:#fff;border:1px solid var(--line);border-radius:8px;
+  font-size:13px;color:var(--text);cursor:default;
+}
+.nm-pill .tag{font-size:10px;color:var(--text-3);margin-left:7px;border:1px solid var(--line);padding:0 4px;border-radius:3px}
+.refresh{
+  margin-left:4px;padding:9px 14px;background:transparent;border:1px dashed var(--line-2);
+  border-radius:8px;font-size:12px;color:var(--text-2);cursor:pointer;font-family:inherit;
+}
+.refresh:hover{border-color:var(--blue);color:var(--blue)}
+
+ul.risks{list-style:none}
+ul.risks li{
+  position:relative;padding-left:18px;font-size:13px;color:var(--text-2);margin-bottom:9px;line-height:1.6;
+}
+ul.risks li::before{
+  content:"";position:absolute;left:2px;top:9px;width:5px;height:5px;border-radius:50%;
+  background:var(--warn);opacity:.75;
+}
+
+.edge{
+  margin-top:26px;padding:18px 20px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;
+}
+.edge .t{font-size:12px;color:var(--text-3);margin-bottom:6px}
+.edge .c{font-size:13.5px;color:var(--text);line-height:1.65}
+
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);min-width:560px}
+#overview{overflow-x:auto}
+thead th{
+  text-align:left;font-weight:500;color:var(--text-3);padding:11px 14px;
+  border-bottom:1px solid var(--line);font-size:11.5px;letter-spacing:.3px;background:#FCFBF8;
+}
+tbody td{padding:12px 14px;border-bottom:1px solid #F4F2ED;color:var(--text-2)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer;transition:background .12s}
+tbody tr:hover td{background:#FBFBF8}
+tbody td.n{color:var(--text);font-weight:500}
+.sbar{display:flex;align-items:center;gap:9px}
+.sbar .tr{width:56px;height:4px;background:#EFEDE7;border-radius:100px;overflow:hidden;flex:none}
+.sbar .tr i{display:block;height:100%;border-radius:100px}
+.sbar .num{font-variant-numeric:tabular-nums;font-weight:500;font-size:13px;min-width:22px}
+.tag{font-size:11px;padding:1px 7px;border-radius:4px;white-space:nowrap}
+.tag.up{background:var(--go-bg);color:var(--go)}
+.tag.flat{background:#F2F0EB;color:var(--text-2)}
+.tag.down{background:var(--stop-bg);color:var(--stop)}
+
+footer{margin:56px 0 60px;padding-top:24px;border-top:1px solid var(--line)}
+footer h5{font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px}
+footer p{font-size:12px;color:var(--text-3);line-height:1.75;margin-bottom:6px}
+footer .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--text-3);background:#F4F2ED;padding:1px 5px;border-radius:3px}
+
+@media(max-width:760px){
+  .wrap{padding:0 18px}
+  .hero{padding:34px 0 12px}
+  .hero h1{font-size:23px}
+  .hd-meta{display:none}
+  .input-row{flex-direction:column}
+  #go{width:100%}
+  .verdict{flex-direction:column;gap:20px;padding:24px}
+  .score-box{border-right:none;border-bottom:1px solid #F0EEE9;padding:0 0 18px;width:100%;text-align:left}
+  .score{font-size:46px}
+  .dims{grid-template-columns:1fr}
+  .samples{grid-template-columns:1fr}
+  table{font-size:12px}
+  thead th,tbody td{padding:9px 10px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hd">
+    <div class="brand">
+      <div class="logo"></div>
+      <b>漫剧选题雷达</b>
+      <span class="ver">MVP</span>
+    </div>
+    <div class="hd-meta">样本 200 部 · 数据截至 2026-11-15</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <h1>这个题材，现在做还有机会吗？</h1>
+    <p>输入一句话创意，或者直接选一个题材。基于红果、抖音近两个月 AI 剧漫剧百强榜的结构化标注，给出机会判断、对标爆款和命名结构建议。</p>
+
+    <div class="input-row">
+      <input id="query" type="text" placeholder="例如：被退婚的女主穿越到七零年代，靠一手好厨艺翻身">
+      <button id="go">分析</button>
+    </div>
+
+    <div class="plat-row">
+      <span class="lbl">目标平台</span>
+      <button class="plat active" data-plat="hongguo">红果短剧</button>
+      <button class="plat" data-plat="douyin">抖音端原生</button>
+      <span class="lbl" id="plat-hint">漫剧主战场，免费赛道</span>
+    </div>
+
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <section id="result" class="hidden"></section>
+
+  <section class="block" id="overview">
+    <h4>题材机会总览<span class="hint" id="ov-hint">按当前平台的机会指数排序，点击查看详情</span></h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22%">题材</th>
+          <th style="width:20%">机会指数</th>
+          <th style="width:12%">在榜数</th>
+          <th style="width:14%">续作占比</th>
+          <th style="width:12%">趋势</th>
+          <th style="width:20%">判断</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </section>
+
+  <footer>
+    <h5>数据与方法</h5>
+    <p>样本来自 2026 年 10 月 DataEye 抖音 / 红果 AI 剧漫剧百强榜、11 月红果热榜，共 200 部作品。题材标签为人工标注，热度沿用各平台原始口径（红果为峰值热度，抖音为播放增量）。</p>
+    <p>带 <span class="mono">≈</span> 标记的热度为根据榜单结构推算，非原始披露值。</p>
+    <p>评分模型为四维加权：市场热度 30%、供给空间 25%、新 IP 友好度 25%、趋势 20%。权重与题材数据均可在源码 <span class="mono">DATA</span> 与 <span class="mono">WEIGHTS</span> 中调整。这是一个用于判断方向的决策辅助工具，不构成投资或立项建议。</p>
+  </footer>
+
+</main>
+
+<script>
+/* ============================================================
+   数据区：想扩充题材或修正数据，改这里就够了
+   heat  = 0-100 的相对热度指数（不是绝对值，用于横向比较）
+   count = 该题材在当期百强榜的在榜作品数
+   trend = rising / stable / declining
+   ============================================================ */
+const DATA = {
+  updated: '2026-11-15',
+  genres: [
+    {
+      id: 'xuanhuan',
+      name: '玄幻仙侠',
+      alias: ['玄幻','仙侠','修仙','飞升','灵根','仙尊','上古','妖怪','剑','宗','镇压','神','仙','妖'],
+      douyin: { heat: 38, count: 6, trend: 'declining' },
+      hongguo: { heat: 96, count: 22, trend: 'stable' },
+      sequel: 0.78,
+      form: '3D 漫主导',
+      samples: [
+        { n: '万妖图录传·第十四季', p: '红果', h: '11578 万', v: 1, why: '连续十四季仍在刷新自身天花板' },
+        { n: '聚宝仙盆之杂灵根才是真BOSS·第十三季', p: '红果', h: '9697 万', v: 1, why: '第十三、十四季双榜，单 IP 占一片' },
+        { n: '满院亲戚全是上古大妖·第五季', p: '红果', h: '≈7800 万', v: 0, why: '第五、六季同时发力' }
+      ],
+      risks: [
+        '红果 TOP5 中 4 部是长寿系列 IP，新 IP 首季几乎没有上榜位置',
+        '续作密度约 78%，一旦首季数据不好就会被平台直接判死',
+        '抖音端玄幻已明显退潮，跨平台复制的成功率低'
+      ],
+      edge: '首季硬碰几乎没有胜算。除非手上有强网文 IP 或成熟 3D 承制能力，否则不要从这里切入——这个赛道拼的是续作运营，不是创意。',
+      naming: {
+        a: ['九幽剑主','万妖图录传','聚宝仙盆'],
+        b: ['杂灵根才是真BOSS','我以凡骨镇万古','这炉丹药有点问题']
+      }
+    },
+    {
+      id: 'shijing',
+      name: '市井生活流',
+      alias: ['市井','生活','家庭','邻里','同事','学区房','人情','职场','中年','烟火','婆媳','亲戚','邻居','物业','小区'],
+      douyin: { heat: 95, count: 14, trend: 'rising' },
+      hongguo: { heat: 48, count: 3, trend: 'rising' },
+      sequel: 0.15,
+      form: 'AI 仿真人剧为主',
+      samples: [
+        { n: '一屋烟火，两样人心', p: '抖音', h: '21.84 亿', v: 1, why: '10 月唯一播放增量破 20 亿，AI 仿真人剧' },
+        { n: '一套学区房，让邻居盯上了我全家', p: '抖音', h: '≈6 亿', v: 0, why: '市井冲突的标准结构：具体物件 + 关系升级' },
+        { n: '顺路载同事三个月，她们真当我是司机', p: '抖音', h: '≈5 亿', v: 0, why: '人情世故型爽感，靠真实感而非反转' }
+      ],
+      risks: [
+        '抖音端已经非常拥挤，14 部在榜意味着题材红利正在被快速消耗',
+        '红果端样本只有 3 部，验证不足，属于「有逻辑但没跑通」的机会',
+        '爽点依赖生活细节的真实度，AI 生成容易滑向悬浮'
+      ],
+      edge: '不要写「家庭矛盾」，要写「具体职业 + 具体物件」。学区房、同事顺路、火锅店——观众要的是"这事可能发生在我身上"，而不是又一个婆媳吵架。',
+      naming: {
+        a: ['一套学区房','顺路载同事三个月','楼下那家小馆','我妈的记账本'],
+        b: ['让全家盯上了我','她们真当我是司机','吃出了人情冷暖','藏着三十年的账']
+      }
+    },
+    {
+      id: 'niandai',
+      name: '年代穿越',
+      alias: ['年代','七零','八零','六零','七十','八十','穿越','下乡','知青','村花','大院','供销社','高干','军婚'],
+      douyin: { heat: 78, count: 10, trend: 'stable' },
+      hongguo: { heat: 72, count: 8, trend: 'stable' },
+      sequel: 0.52,
+      form: '3D 漫 / AI 仿真人剧各半',
+      samples: [
+        { n: '七零高干：从村花到翻译官', p: '抖音', h: '9.5 亿', v: 1, why: '身份反差 + 年代感，沐境灵心出品' },
+        { n: '反向拿捏：和闺蜜穿七零带着婆婆一起离', p: '红果', h: '7850 万', v: 1, why: '红果第 13 名，双女主 + 反套路' },
+        { n: '穿越六零之我在山洞闷声发家', p: '双榜', h: '—', v: 1, why: '付费免费双爆案例，存量稳定' }
+      ],
+      risks: [
+        '两端都有稳定存量，但也意味着没有明显的时间差红利',
+        '续作占比过半，纯新 IP 要靠更强的开局钩子',
+        '同质化严重，剧名结构高度雷同，点击率会被稀释'
+      ],
+      edge: '这个赛道的差异点不在年代，在「职业技能」。翻译官、厨子、裁缝、会计——给主角一门真手艺，比给她一个重生记忆更有记忆点。',
+      naming: {
+        a: ['七零高干','穿越六零','八零大院'],
+        b: ['从村花到翻译官','我在山洞闷声发家','她靠一手好厨艺翻身']
+      }
+    },
+    {
+      id: 'chuanshu',
+      name: '穿书古言 / 宅斗',
+      alias: ['穿书','古言','宅斗','王妃','诰命','太子妃','状元','科举','宫廷','侯门','嫡女','驸马','憨婿','入宋'],
+      douyin: { heat: 72, count: 8, trend: 'stable' },
+      hongguo: { heat: 76, count: 9, trend: 'stable' },
+      sequel: 0.48,
+      form: '3D 漫为主',
+      samples: [
+        { n: '穿书拒诰命，嫁得良人度流年', p: '抖音', h: '13.1 亿', v: 1, why: '旺成景曜出品，穿书 + 拒婚结构' },
+        { n: '持械入宋：第九季', p: '红果', h: '8206 万', v: 1, why: 'AI 仿真人剧最高位（第 8 名），知识题材' },
+        { n: '大唐憨婿之我姐姐是太子妃·第四季', p: '红果', h: '8038 万', v: 1, why: '第 11 名，系列化稳定输出' }
+      ],
+      risks: [
+        '内容合规压力最大的品类之一，涉及历史与宫斗尺度',
+        '续作密集，古言观众的忠诚度绑定在 IP 而非题材',
+        '妆造和场景成本高于现代题材，AI 生成的一致性更难控'
+      ],
+      edge: '「知识型古言」正在冒头。《持械入宋》证明了把真实史料、兵器、制度做成爽点，比纯宅斗更有辨识度——这也是 11 月被点名的重点关注方向。',
+      naming: {
+        a: ['穿书拒诰命','持械入宋','大唐憨婿'],
+        b: ['嫁得良人度流年','我姐姐是太子妃','这科举我考定了']
+      }
+    },
+    {
+      id: 'jiating',
+      name: '家庭伦理 / 后妈带娃',
+      alias: ['后妈','带娃','婆家','复仇','家产','继母','孩子','娘家','整顿','全家','逆子','认亲'],
+      douyin: { heat: 86, count: 12, trend: 'rising' },
+      hongguo: { heat: 52, count: 4, trend: 'rising' },
+      sequel: 0.22,
+      form: '3D 漫为主',
+      samples: [
+        { n: '东北后妈，整顿全家', p: '抖音', h: '18.06 亿', v: 1, why: '第 3 名，地域标签 + 整顿叙事' },
+        { n: '猪圈倒了，薄荷火了', p: '抖音', h: '16.07 亿', v: 1, why: '晨帧传媒，具体物件驱动的市井爽感' },
+        { n: '男人哪有火锅香，我吃火锅不烧心', p: '抖音', h: '≈5 亿', v: 0, why: '情绪价值型标题，去冲突化' }
+      ],
+      risks: [
+        '平台正在治理「刻意渲染矛盾」，过度狗血会被限流',
+        '抖音端供给已经很密，红果端尚未验证',
+        '标题同质化极高，"整顿""逆袭"已被用到疲劳'
+      ],
+      edge: '把「矛盾」换成「解法」。观众已经看腻了受气再打脸，现在吃的是"我用一个具体办法解决了这件事"——地域特色、职业技巧、生活智慧都是可用的解法。',
+      naming: {
+        a: ['东北后妈','我那不省心的舅妈','一锅乱炖'],
+        b: ['整顿全家','把日子过成了段子','治好了全家的病']
+      }
+    },
+    {
+      id: 'mieshi',
+      name: '天灾末世 / 囤货',
+      alias: ['末世','天灾','囤货','灾难','求生','暴雪','丧尸','废土','末日','极寒'],
+      douyin: { heat: 30, count: 2, trend: 'declining' },
+      hongguo: { heat: 28, count: 1, trend: 'declining' },
+      sequel: 0.30,
+      form: '3D 漫',
+      samples: [
+        { n: '重生暴雪前，舍了瓦房换铁堡', p: '抖音', h: '11.75 亿', v: 1, why: '退潮后仅存的代表，第 10 名' }
+      ],
+      risks: [
+        '9 月大放异彩、10 月基本退潮，题材轮动速度极快',
+        '空位多是因为没人要，不是因为没人做',
+        '监管对灾难渲染与"刻意制造焦虑"的容忍度在下降'
+      ],
+      edge: '不建议现在进入。这类题材的窗口期通常只有 4—6 周，等你做完一季，风向已经换了。如果一定要做，把它当"元素"而不是"题材"——加进市井或职场故事里，而不是单独扛一整部。',
+      naming: {
+        a: ['重生暴雪前','末日第七天','最后一批物资'],
+        b: ['舍了瓦房换铁堡','我囤了三年粮','楼下超市没关门']
+      }
+    },
+    {
+      id: 'zhichang',
+      name: '职场反差',
+      alias: ['职场','同事','老板','总裁','离职','加班','保安','打工人','公司','升职','甲方','实习生','打卡'],
+      douyin: { heat: 74, count: 9, trend: 'stable' },
+      hongguo: { heat: 55, count: 5, trend: 'stable' },
+      sequel: 0.25,
+      form: '3D 漫为主',
+      samples: [
+        { n: '同事请客，刷的却是我的卡', p: '抖音', h: '18.07 亿', v: 1, why: '第 2 名，3D 漫，冬星互动出品' },
+        { n: '让你当保安，没让你镇压SSS级诡异', p: '双榜', h: '—', v: 1, why: '职场 + 诡异混搭，双榜在榜' }
+      ],
+      risks: [
+        '纯职场题材容易陷入"吐槽"而不是"故事"，完播率撑不住',
+        '受众偏一二线城市，红果免费赛道的人群匹配度一般',
+        '与市井流高度重叠，边界模糊'
+      ],
+      edge: '职场本身不是爽点，"身份错位"才是。保安镇压诡异、实习生指挥总监——反差越具体，钩子越硬。单纯写加班和甲方，观众不会买单。',
+      naming: {
+        a: ['同事请客','让你当保安','我的甲方'],
+        b: ['刷的却是我的卡','没让你镇压SSS级诡异','住在我的工位上']
+      }
+    },
+    {
+      id: 'chongsheng',
+      name: '重生逆袭 / 打脸',
+      alias: ['重生','逆袭','丑小鸭','万人迷','打脸','虐渣','马甲','真假千金','替嫁','装穷','赘婿','退婚'],
+      douyin: { heat: 68, count: 7, trend: 'stable' },
+      hongguo: { heat: 88, count: 11, trend: 'stable' },
+      sequel: 0.62,
+      form: '3D 漫 / AI 仿真人剧',
+      samples: [
+        { n: '重生！丑小鸭逆袭成了万人迷·第三季', p: '红果', h: '9896 万', v: 1, why: '第 2 名，万序光影，标准打脸结构' },
+        { n: '装穷提亲，娶到全家嫌弃的她', p: '红果', h: '9004 万', v: 1, why: '第 3 名，AI 剧，评分仅 8.0 但热度极高' },
+        { n: '重生后谁还嫁富二代', p: '双榜', h: '—', v: 1, why: '付费免费双爆，题材常青' }
+      ],
+      risks: [
+        '红果端供给最饱和的题材之一，11 部在榜',
+        '口碑与热度严重错位：8.0 分的剧能坐第三，说明观众"边骂边看"',
+        '续作占比 62%，新 IP 基本要靠更极端的钩子'
+      ],
+      edge: '这个赛道已经进入"情绪通胀"阶段。要做就做极致的单一爽点，别做复合叙事——观众要的是 15 秒内知道谁该被打脸，以及打得多狠。',
+      naming: {
+        a: ['重生！丑小鸭','装穷提亲','我死后他们后悔了'],
+        b: ['逆袭成了万人迷','娶到全家嫌弃的她','跪着求我回去']
+      }
+    },
+    {
+      id: 'lingyi',
+      name: '灵异 / 诡异',
+      alias: ['诡异','灵异','鬼','恐怖','怪谈','悬疑','SSS级','镇压','规则','副本','惊悚'],
+      douyin: { heat: 66, count: 6, trend: 'rising' },
+      hongguo: { heat: 40, count: 2, trend: 'stable' },
+      sequel: 0.20,
+      form: '3D 漫 / 动态漫',
+      samples: [
+        { n: '让你当保安，没让你镇压SSS级诡异', p: '双榜', h: '—', v: 1, why: '职场 + 诡异，双榜在榜的混搭样本' },
+        { n: '诡异游戏：开局觉醒Bug级天赋', p: '抖音动态漫', h: '2076 万', v: 1, why: '单日播放增量，兴漫剧场' },
+        { n: '觉醒伪神：神明弃我我自为神6', p: '红果', h: '≈6000 万', v: 0, why: '数字尾缀系列，稳定在榜' }
+      ],
+      risks: [
+        '审核红线最敏感的品类，血腥、封建迷信表达容易被卡',
+        '红果端只有 2 部在榜，用户接受度尚未验证',
+        '氛围依赖音效与镜头，AI 生成的表现力有明显短板'
+      ],
+      edge: '「规则怪谈」比「鬼」安全，也比「鬼」好写。把恐怖的来源从灵异换成规则（不能回头、不能应答、必须在几点前离开），既避开审核，又天然适合短视频的钩子结构。',
+      naming: {
+        a: ['让你当保安','规则怪谈','这栋楼没有四层'],
+        b: ['没让你镇压SSS级诡异','我没有回头','晚上十点必须关灯']
+      }
+    },
+    {
+      id: 'keju',
+      name: '科举 / 知识逆袭',
+      alias: ['科举','状元','知识','读书','寒门','书生','考公','学霸','史料','制度','算术','医术'],
+      douyin: { heat: 70, count: 4, trend: 'rising' },
+      hongguo: { heat: 58, count: 4, trend: 'rising' },
+      sequel: 0.30,
+      form: 'AI 仿真人剧 / 3D 漫',
+      samples: [
+        { n: '谁说纨绔不能当状元', p: '抖音', h: '≈7 亿', v: 0, why: '半亩文剧社，9 月双榜在榜、10 月仍留守' },
+        { n: '持械入宋：第九季', p: '红果', h: '8206 万', v: 1, why: '知识题材在红果的最高位，第 8 名' }
+      ],
+      risks: [
+        '样本量还小，两端的验证都不够充分',
+        '知识密度是门槛：写错一个制度细节，评论区会直接反噬',
+        '节奏天然偏慢，与漫剧"前 3 秒定生死"的规律冲突'
+      ],
+      edge: '这是我认为最值得下注的方向，因为它同时满足"平台在推"和"供给还少"。但壁垒不在题材，在考据——你得真的懂一点历史、兵器或制度，否则做出来就是空壳。',
+      naming: {
+        a: ['谁说纨绔','寒门书生','我在宋朝考公'],
+        b: ['不能当状元','靠算术翻身','把制度玩明白了']
+      }
+    }
+  ]
+};
+
+const WEIGHTS = { heat: 0.30, supply: 0.25, entry: 0.25, trend: 0.20 };
+const TREND_MAP = { rising: 90, stable: 58, declining: 22 };
+const PLAT_NAME = { hongguo: '红果', douyin: '抖音' };
+const PLAT_HINT = {
+  hongguo: '漫剧主战场，免费赛道',
+  douyin: '端原生，播放增量口径'
+};
+
+const MAX = {
+  hongguo: Math.max.apply(null, DATA.genres.map(function(g){ return g.hongguo.count; })),
+  douyin: Math.max.apply(null, DATA.genres.map(function(g){ return g.douyin.count; }))
+};
+
+let currentPlat = 'hongguo';
+let currentGenre = null;
+
+function calc(g, plat){
+  const other = plat === 'hongguo' ? 'douyin' : 'hongguo';
+  const t = g[plat], o = g[other];
+  const heat = t.heat * 0.65 + o.heat * 0.35;
+  const comp = Math.min(100, t.count / MAX[plat] * 100);
+  const supply = 100 - comp;
+  const entry = 100 - g.sequel * 100;
+  const trend = TREND_MAP[t.trend] || 58;
+  const total = heat * WEIGHTS.heat + supply * WEIGHTS.supply + entry * WEIGHTS.entry + trend * WEIGHTS.trend;
+  return {
+    total: Math.round(total),
+    heat: Math.round(heat),
+    supply: Math.round(supply),
+    entry: Math.round(entry),
+    trend: trend,
+    count: t.count,
+    gap: t.heat - o.heat
+  };
+}
+
+function grade(s){
+  if (s >= 76) return { txt: '值得做', cls: 'go', sub: '窗口还开着' };
+  if (s >= 66) return { txt: '可以试', cls: 'ok', sub: '有机会，但要差异化' };
+  if (s >= 52) return { txt: '谨慎', cls: 'warn', sub: '红海边缘' };
+  return { txt: '不建议', cls: 'stop', sub: '别进去当分母' };
+}
+
+function trendTag(t){
+  if (t === 'rising') return '<span class="tag up">上升</span>';
+  if (t === 'declining') return '<span class="tag down">退潮</span>';
+  return '<span class="tag flat">持平</span>';
+}
+
+function scoreColor(s){
+  if (s >= 76) return '#0F6E56';
+  if (s >= 66) return '#185FA5';
+  if (s >= 52) return '#854F0B';
+  return '#A32D2D';
+}
+
+/* ---------- 渲染题材 chips ---------- */
+function renderChips(){
+  const box = document.getElementById('chips');
+  const list = DATA.genres.map(function(g){
+    return { g: g, s: calc(g, currentPlat).total };
+  }).sort(function(a,b){ return b.s - a.s; });
+  box.innerHTML = list.map(function(it){
+    return '<button class="chip" data-id="' + it.g.id + '">' + it.g.name +
+           '<span class="n">' + it.s + '</span></button>';
+  }).join('');
+  Array.prototype.forEach.call(box.querySelectorAll('.chip'), function(b){
+    b.addEventListener('click', function(){ show(b.getAttribute('data-id')); });
+  });
+}
+
+/* ---------- 渲染总览表 ---------- */
+function renderTable(){
+  const rows = DATA.genres.map(function(g){
+    return { g: g, r: calc(g, currentPlat) };
+  }).sort(function(a,b){ return b.r.total - a.r.total; });
+
+  document.getElementById('tbody').innerHTML = rows.map(function(it){
+    const r = it.r, g = it.g, col = scoreColor(r.total);
+    return '<tr data-id="' + g.id + '">' +
+      '<td class="n">' + g.name + '</td>' +
+      '<td><div class="sbar"><span class="num" style="color:' + col + '">' + r.total + '</span>' +
+        '<span class="tr"><i style="width:' + r.total + '%;background:' + col + '"></i></span></div></td>' +
+      '<td>' + r.count + ' 部</td>' +
+      '<td>' + Math.round(g.sequel * 100) + '%</td>' +
+      '<td>' + trendTag(g[currentPlat].trend) + '</td>' +
+      '<td style="color:' + col + '">' + grade(r.total).txt + '</td>' +
+    '</tr>';
+  }).join('');
+
+  Array.prototype.forEach.call(document.querySelectorAll('#tbody tr'), function(tr){
+    tr.addEventListener('click', function(){
+      show(tr.getAttribute('data-id'));
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+/* ---------- 命名建议 ---------- */
+function renderNames(g){
+  const box = document.getElementById('names');
+  const a = g.naming.a, b = g.naming.b;
+  let out = [];
+  for (let i = 0; i < 4; i++){
+    const ai = a[Math.floor(Math.random() * a.length)];
+    const bi = b[Math.floor(Math.random() * b.length)];
+    let name = i % 2 === 0 ? ai + '，' + bi : ai + '之' + bi;
+    if (out.indexOf(name) === -1) out.push(name);
+  }
+  let guard = 0;
+  while (out.length < 4 && guard < 24){
+    const cand = a[0] + '·第' + (Math.floor(Math.random() * 6) + 2) + '季';
+    if (out.indexOf(cand) === -1) out.push(cand);
+    guard++;
+  }
+  box.innerHTML = out.slice(0,4).map(function(n, i){
+    const tag = n.indexOf('季') > -1 ? '系列' : '单季';
+    return '<div class="nm-pill">' + n + '<span class="tag">' + tag + '</span></div>';
+  }).join('') + '<button class="refresh" id="refresh">换一批</button>';
+
+  document.getElementById('refresh').addEventListener('click', function(){
+    renderNames(g);
+  });
+}
+
+/* ---------- 主渲染 ---------- */
+function show(id){
+  const g = DATA.genres.filter(function(x){ return x.id === id; })[0];
+  if (!g) return;
+  currentGenre = g;
+
+  const r = calc(g, currentPlat);
+  const gd = grade(r.total);
+  const col = scoreColor(r.total);
+  const platName = PLAT_NAME[currentPlat];
+
+  const dims = [
+    { k: '市场热度', v: r.heat, note: '两端加权，' + platName + '端 ' + g[currentPlat].heat + ' / 另一端 ' + g[currentPlat === 'hongguo' ? 'douyin' : 'hongguo'].heat },
+    { k: '供给空间', v: r.supply, note: '在榜 ' + r.count + ' 部，该期上限 ' + MAX[currentPlat] + ' 部' },
+    { k: '新 IP 友好度', v: r.entry, note: '续作占比 ' + Math.round(g.sequel * 100) + '%' },
+    { k: '趋势动能', v: r.trend, note: { rising: '正在上升', stable: '横盘', declining: '明显退潮' }[g[currentPlat].trend] }
+  ];
+
+  const otherPlat = currentPlat === 'hongguo' ? 'douyin' : 'hongguo';
+  const otherName = PLAT_NAME[otherPlat];
+  const diff = g[currentPlat].heat - g[otherPlat].heat;
+  let timing = '';
+  if (diff <= -18 && g[currentPlat].trend !== 'declining'){
+    timing = '<div class="callout hot"><b>时间差红利。</b>这个题材在' + otherName + '已经被验证（热度 ' + g[otherPlat].heat + '），但在' + platName + '只到 ' + g[currentPlat].heat + '。跑通的叙事结构通常要 2—4 周才会被这边的供给填满——这是你唯一确定存在的窗口。</div>';
+  } else if (diff <= -18){
+    timing = '<div class="callout cold"><b>那边验证过，这边不买账。</b>' + otherName + '端的 ' + g[otherPlat].heat + ' 是真实热度，但' + platName + '端已经退潮到 ' + g[currentPlat].heat + '。同一个题材在两个平台不是同一批观众，不能直接搬。</div>';
+  } else if (diff >= 18){
+    timing = '<div class="callout"><b>你站在热度更高的一侧。</b>' + platName + '端比' + otherName + '高 ' + diff + ' 个点，同时在榜 ' + r.count + ' 部。热度高通常意味着供给也在跟进——先想清楚你要抢的是增量观众，还是从头部手里抢存量。</div>';
+  } else if (Math.abs(diff) < 15){
+    timing = '<div class="callout cold"><b>没有时间差。</b>两端热度接近，说明这个题材已经被同步开发过，不存在从 A 平台搬到 B 平台的套利空间。</div>';
+  } else {
+    timing = '<div class="callout cold"><b>差异不足以构成套利。</b>两端相差 ' + Math.abs(diff) + ' 个点，属于正常波动，跨平台复制的不确定性大于确定性。</div>';
+  }
+
+  const html =
+    '<div class="verdict">' +
+      '<div class="score-box">' +
+        '<div class="score" style="color:' + col + '">' + r.total + '</div>' +
+        '<div class="score-label">机会指数 / 100</div>' +
+      '</div>' +
+      '<div class="v-main">' +
+        '<div class="badge ' + gd.cls + '">' + gd.txt + ' · ' + gd.sub + '</div>' +
+        '<h3>' + g.name + '<span class="sub">' + platName + '端 · ' + g.form + '</span></h3>' +
+        '<div class="v-text">' + buildVerdict(g, r, platName) + '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="block">' +
+      '<h4>四个维度拆解<span class="hint">点击总览表可对比其他题材</span></h4>' +
+      '<div class="dims">' + dims.map(function(d){
+        return '<div class="dim">' +
+          '<div class="dim-head"><span class="k">' + d.k + '</span>' +
+          '<span class="v" style="color:' + col + '">' + d.v + '<small>/100</small></span></div>' +
+          '<div class="bar"><div class="bar-in" style="width:' + d.v + '%;background:' + col + '"></div></div>' +
+          '<div class="dim-note">' + d.note + '</div>' +
+        '</div>';
+      }).join('') + '</div>' +
+    '</div>' +
+
+    timing +
+
+    '<div class="block">' +
+      '<h4>对标爆款<span class="hint">带 ≈ 的为榜单结构推算值</span></h4>' +
+      '<div class="samples">' + g.samples.map(function(s){
+        return '<div class="sample">' +
+          '<div class="nm">' + s.n + '</div>' +
+          '<div class="heat">' + s.h + '<span>' + (s.h.indexOf('亿') > -1 ? '播放增量' : '峰值热度') + '</span></div>' +
+          '<div class="pf">' + s.p + '</div>' +
+          '<div class="why">' + s.why + '</div>' +
+        '</div>';
+      }).join('') + '</div>' +
+    '</div>' +
+
+    '<div class="block">' +
+      '<h4>命名结构建议<span class="hint">按该题材当期在榜作品的标题结构生成</span></h4>' +
+      '<div class="names" id="names"></div>' +
+    '</div>' +
+
+    '<div class="edge">' +
+      '<div class="t">如果一定要做，你的差异化在哪</div>' +
+      '<div class="c">' + g.edge + '</div>' +
+    '</div>' +
+
+    '<div class="block">' +
+      '<h4>风险提示</h4>' +
+      '<ul class="risks">' + g.risks.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' +
+    '</div>';
+
+  const box = document.getElementById('result');
+  box.innerHTML = html;
+  box.classList.remove('hidden');
+  renderNames(g);
+
+  Array.prototype.forEach.call(box.querySelectorAll('.bar-in'), function(el, i){
+    const w = el.style.width;
+    el.style.width = '0';
+    setTimeout(function(){ el.style.width = w; }, 40 + i * 70);
+  });
+}
+
+function buildVerdict(g, r, platName){
+  const gd = grade(r.total);
+  const trendTxt = { rising: '且仍在上升', stable: '但目前已经横盘', declining: '并且正在退潮' }[g[currentPlat].trend];
+  if (r.total >= 76){
+    return platName + '端只有 ' + r.count + ' 部在榜，续作占比 ' + Math.round(g.sequel*100) + '%，新 IP 还有位置。' + trendTxt + '。这是少数"有人验证过、但还没被填满"的位置。';
+  }
+  if (r.total >= 66){
+    return platName + '端 ' + r.count + ' 部在榜，热度真实存在，供给还没到饱和。但题材本身辨识度不高，需要用更硬的开局钩子拉开差距。';
+  }
+  if (r.total >= 52){
+    return platName + '端已有 ' + r.count + ' 部在榜，续作占比 ' + Math.round(g.sequel*100) + '%。' + trendTxt + '。可以进，但要接受这是个"必须做到前 10% 才有回报"的位置。';
+  }
+  return platName + '端在榜 ' + r.count + ' 部，续作占比 ' + Math.round(g.sequel*100) + '%。' + trendTxt + '。新 IP 拿不到位置，不建议作为寒假项目的方向。';
+}
+
+/* ---------- 自由文本匹配 ---------- */
+function match(text){
+  const q = text.trim().toLowerCase();
+  if (!q) return null;
+  let best = null, bestScore = 0;
+  DATA.genres.forEach(function(g){
+    let hit = 0;
+    g.alias.forEach(function(a){
+      if (q.indexOf(a.toLowerCase()) > -1) hit += a.length >= 2 ? 2 : 1;
+    });
+    if (q.indexOf(g.name) > -1) hit += 3;
+    if (hit > bestScore){ bestScore = hit; best = g; }
+  });
+  return bestScore > 0 ? { g: best, conf: Math.min(96, 52 + bestScore * 7) } : null;
+}
+
+function runQuery(){
+  const v = document.getElementById('query').value;
+  if (!v.trim()){
+    document.getElementById('query').focus();
+    return;
+  }
+  const m = match(v);
+  if (!m){
+    const box = document.getElementById('result');
+    box.innerHTML = '<div class="callout cold" style="margin-top:0">' +
+      '<b>没匹配到题材。</b>试着换个说法，或者直接从上面的题材里选一个。' +
+      '比如"穿越七零"会匹配到年代穿越，"后妈带孩子"会匹配到家庭伦理。' +
+      '</div>';
+    box.classList.remove('hidden');
+    return;
+  }
+  show(m.g.id);
+  const box = document.getElementById('result');
+  const tip = document.createElement('div');
+  tip.className = 'callout cold';
+  tip.style.marginTop = '16px';
+  tip.innerHTML = '<b>匹配到：' + m.g.name + '</b>（置信度 ' + m.conf + '%）。基于关键词命中，不是语义理解——如果不对，从下面的题材列表里直接选。';
+  box.appendChild(tip);
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ---------- 事件绑定 ---------- */
+document.getElementById('go').addEventListener('click', runQuery);
+document.getElementById('query').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') runQuery();
+});
+
+Array.prototype.forEach.call(document.querySelectorAll('.plat'), function(b){
+  b.addEventListener('click', function(){
+    Array.prototype.forEach.call(document.querySelectorAll('.plat'), function(x){
+      x.classList.remove('active');
+    });
+    b.classList.add('active');
+    currentPlat = b.getAttribute('data-plat');
+    document.getElementById('plat-hint').textContent = PLAT_HINT[currentPlat];
+    document.getElementById('ov-hint').textContent = '当前：' + PLAT_NAME[currentPlat] + '端 · 按机会指数排序，点击查看详情';
+    renderChips();
+    renderTable();
+    if (currentGenre) show(currentGenre.id);
+  });
+});
+
+renderChips();
+renderTable();
+
+(function(){
+  const top = DATA.genres.map(function(g){
+    return { g: g, s: calc(g, currentPlat).total };
+  }).sort(function(a, b){ return b.s - a.s; })[0];
+  show(top.g.id);
+})();
+</script>
+</body>
+</html>
