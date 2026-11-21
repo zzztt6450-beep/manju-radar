@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1B5E4F">
+<meta name="theme-color" content="#34497A">
 <title>漫剧雷达 · 选题工作台</title>
 <link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#1B5E4F">
+<meta name="theme-color" content="#34497A">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -16,7 +16,7 @@
 :root{
   --bg:#F5F4F0; --card:#FFFFFF; --line:#E8E6E0; --line2:#DCD9D2;
   --ink:#1C2321; --ink2:#5C6360; --ink3:#939A96;
-  --brand:#1B5E4F; --brand-soft:#E8F2EE;
+  --brand:#34497A; --brand-soft:#EAEEF7;
   --amber:#A9741F; --amber-soft:#FAF1DF;
   --red:#A5382F; --red-soft:#FBEAE7;
   --blue:#2C5F8A; --blue-soft:#E9F1F8;
@@ -44,7 +44,7 @@ body{
   -webkit-font-smoothing:antialiased;
   background-color:#F4F3EF;
   background-image:
-    radial-gradient(circle at 16% 6%, rgba(27,94,79,.085), transparent 42%),
+    radial-gradient(circle at 16% 6%, rgba(52,73,122,.085), transparent 42%),
     radial-gradient(circle at 88% 90%, rgba(169,116,31,.07), transparent 46%),
     linear-gradient(rgba(28,35,33,.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(28,35,33,.02) 1px, transparent 1px);
@@ -81,7 +81,7 @@ body{
   position:absolute;inset:0;overflow-y:auto;padding:2px 20px 24px;display:none;
   -webkit-overflow-scrolling:touch;
   background:
-    radial-gradient(72% 46% at 12% -2%, rgba(27,94,79,.055), rgba(255,255,255,0) 62%),
+    radial-gradient(72% 46% at 12% -2%, rgba(52,73,122,.055), rgba(255,255,255,0) 62%),
     radial-gradient(62% 42% at 96% 20%, rgba(169,116,31,.045), rgba(255,255,255,0) 60%),
     radial-gradient(56% 36% at 28% 76%, rgba(44,95,138,.045), rgba(255,255,255,0) 62%),
     radial-gradient(52% 32% at 86% 94%, rgba(163,78,110,.04), rgba(255,255,255,0) 60%);
@@ -109,9 +109,12 @@ body{
 
 .brief{
   position:relative;overflow:hidden;
-  background:linear-gradient(140deg,#22735E 0%,#154A3E 100%);
+  background:linear-gradient(140deg,rgba(40,54,64,.58) 0%,rgba(18,30,40,.74) 100%);
+  backdrop-filter:blur(20px) saturate(1.35);
+  -webkit-backdrop-filter:blur(20px) saturate(1.35);
   color:#fff;border-radius:16px;padding:17px 18px;margin-top:4px;
-  box-shadow:0 12px 26px -14px rgba(27,94,79,.6),inset 0 1px 0 rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 16px 34px -18px rgba(16,26,36,.62),inset 0 1px 0 rgba(255,255,255,.18);
 }
 .brief::after{
   content:"";position:absolute;right:-52px;top:-52px;width:150px;height:150px;border-radius:50%;
@@ -212,7 +215,7 @@ textarea,input,select{
   border:1px solid var(--line2);border-radius:9px;background:#fff;padding:10px 12px;
 }
 textarea{resize:none;min-height:76px;line-height:1.6}
-textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(27,94,79,.08)}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(52,73,122,.08)}
 input[type=number]{font-variant-numeric:tabular-nums}
 select{appearance:none;background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4.5L6 8.5L10 4.5' stroke='%23939A96' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px}
 
@@ -1000,20 +1003,20 @@ function dataAge(){
 
 function freshInfo(){
   const a = dataAge();
-  if (a <= 30) return { k:'ok', t:'新鲜', c:'#1B5E4F', bg:'#E8F2EE', note:'一个月内校准过，可以按这些分数判断。' };
+  if (a <= 30) return { k:'ok', t:'新鲜', c:'#34497A', bg:'#EAEEF7', note:'一个月内校准过，可以按这些分数判断。' };
   if (a <= 60) return { k:'warn', t:'偏旧', c:'#A9741F', bg:'#FAF1DF', note:'超过一个月没校准。题材轮动快，建议先看最新一期榜单再决定。' };
   if (a <= 120) return { k:'old', t:'已过期', c:'#A5382F', bg:'#FBEAE7', note:'三个月以上没更新。这些分数只能当历史参照，不要直接拿去立项。' };
   return { k:'dead', t:'已失效', c:'#A5382F', bg:'#FBEAE7', note:'数据已经是半年前的。这个行业题材周期通常只有 4—8 周，请务必重新校准。' };
 }
 
 function colOf(s){
-  if (s >= 76) return '#1B5E4F';
+  if (s >= 76) return '#34497A';
   if (s >= 66) return '#2C5F8A';
   if (s >= 52) return '#A9741F';
   return '#A5382F';
 }
 function gradeOf(s){
-  if (s >= 76) return { t: '值得做', bg: '#E8F2EE', fg: '#1B5E4F', s: '窗口还开着' };
+  if (s >= 76) return { t: '值得做', bg: '#EAEEF7', fg: '#34497A', s: '窗口还开着' };
   if (s >= 66) return { t: '可以试', bg: '#E9F1F8', fg: '#2C5F8A', s: '要做出差异' };
   if (s >= 52) return { t: '谨慎', bg: '#FAF1DF', fg: '#A9741F', s: '红海边缘' };
   return { t: '不建议', bg: '#FBEAE7', fg: '#A5382F', s: '别当分母' };
@@ -1539,7 +1542,7 @@ function runTitle(){
 
   if (j.total >= 85){
     verdict = '四项都占齐了。结构上没毛病，剩下的看内容承不承得住这个钩子。';
-    vt = { t: '结构完整', bg: '#E8F2EE', fg: '#1B5E4F' };
+    vt = { t: '结构完整', bg: '#EAEEF7', fg: '#34497A' };
   } else if (j.total >= 65){
     verdict = '差一块。' + (j.weak.length ? '「' + j.weak.join('、') + '」偏弱。' : '') + '补上就能进及格线。';
     vt = { t: '还差一点', bg: '#FAF1DF', fg: '#A9741F' };
@@ -1556,7 +1559,7 @@ function runTitle(){
 
   const fixHtml = j.weak.length
     ? '<div class="qmiss"><b>怎么改：</b><br>' + j.weak.map(function(k){ return '· ' + k + '：' + FIX[k]; }).join('<br>') + '</div>'
-    : '<div class="qmiss" style="background:#E8F2EE;color:#12513F"><b>不用改结构。</b>如果你还想再压一压，可以试试把结尾换成更狠的动作。</div>';
+    : '<div class="qmiss" style="background:#EAEEF7;color:#12513F"><b>不用改结构。</b>如果你还想再压一压，可以试试把结尾换成更狠的动作。</div>';
 
   const m = matchGenre(v);
   let refHtml = '';
@@ -1741,7 +1744,7 @@ function renderDetail(){
       '<div class="d-stats">' +
         '<div>总成本<b>' + (((p.eps || 0) * (p.cost || 0)) / 10000).toFixed(1) + ' 万</b></div>' +
         '<div>' + bm.label + '<b>' + (has ? p.heat + bm.unit : '待回填') + '</b></div>' +
-        '<div>结果<b style="color:' + (pass ? '#1B5E4F' : '#939A96') + '">' + (has ? (pass ? '进榜' : '未进') : '—') + '</b></div>' +
+        '<div>结果<b style="color:' + (pass ? '#34497A' : '#939A96') + '">' + (has ? (pass ? '进榜' : '未进') : '—') + '</b></div>' +
       '</div>' +
     '</div>' +
 
@@ -2227,7 +2230,7 @@ function renderReview(){
   const ringSvg =
     '<svg width="92" height="92" viewBox="0 0 92 92">' +
       '<circle cx="46" cy="46" r="' + R + '" fill="none" stroke="#EDEBE5" stroke-width="8"/>' +
-      '<circle cx="46" cy="46" r="' + R + '" fill="none" stroke="#1B5E4F" stroke-width="8" ' +
+      '<circle cx="46" cy="46" r="' + R + '" fill="none" stroke="#34497A" stroke-width="8" ' +
         'stroke-dasharray="' + CIRC.toFixed(1) + '" stroke-dashoffset="' + OFF.toFixed(1) + '" ' +
         'stroke-linecap="round" transform="rotate(-90 46 46)"/>' +
       '<text x="46" y="47" text-anchor="middle" dominant-baseline="central" font-size="19" font-weight="600" fill="#1C2321">' +
