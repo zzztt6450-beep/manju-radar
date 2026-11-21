@@ -128,23 +128,33 @@ def fetch(url):
 
 
 def ask_llm(text):
-    from openai import OpenAI
-
+    """不依赖任何第三方库，直接用 urllib 打 OpenAI 兼容接口。"""
     key = os.environ.get('LLM_KEY')
     if not key:
         raise RuntimeError('缺少 LLM_KEY 环境变量')
 
-    client = OpenAI(
-        api_key=key,
-        base_url=os.environ.get('LLM_BASE') or 'https://api.deepseek.com/v1',
+    base = (os.environ.get('LLM_BASE') or 'https://api.deepseek.com/v1').rstrip('/')
+    model = os.environ.get('LLM_MODEL') or 'deepseek-chat'
+
+    payload = json.dumps({
+        'model': model,
+        'messages': [{'role': 'user', 'content': PROMPT % text[:14000]}],
+        'response_format': {'type': 'json_object'},
+        'temperature': 0.1,
+    }).encode('utf-8')
+
+    req = urllib.request.Request(
+        base + '/chat/completions',
+        data=payload,
+        headers={
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + key,
+        },
     )
-    resp = client.chat.completions.create(
-        model=os.environ.get('LLM_MODEL') or 'deepseek-chat',
-        messages=[{'role': 'user', 'content': PROMPT % text[:14000]}],
-        response_format={'type': 'json_object'},
-        temperature=0.1,
-    )
-    return json.loads(resp.choices[0].message.content)
+    with urllib.request.urlopen(req, timeout=180) as resp:
+        body = json.loads(resp.read().decode('utf-8'))
+
+    return json.loads(body['choices'][0]['message']['content'])
 
 
 def parse_heat(s):
@@ -227,17 +237,21 @@ def main():
             if vals:
                 peak = max(peak, sum(vals) / len(vals))
 
+    enough = len(works) >= 30
+    print('样本量 %d 部，%s' % (len(works), '足以更新评分字段' if enough else '偏少，只更新样本、不动评分'))
+
     changed = 0
     for gid, g in by_id.items():
-        for p in ('hongguo', 'douyin'):
-            g[p]['count'] = counts[p].get(gid, 0)
+        if enough:
+            for p in ('hongguo', 'douyin'):
+                g[p]['count'] = counts[p].get(gid, 0)
 
-            vals = [v for v in heats[p].get(gid, []) if v > 0]
-            if vals:
-                g[p]['heat'] = max(1, min(100, round(sum(vals) / len(vals) / peak * 100)))
+                vals = [v for v in heats[p].get(gid, []) if v > 0]
+                if vals:
+                    g[p]['heat'] = max(1, min(100, round(sum(vals) / len(vals) / peak * 100)))
 
-            if gid in trends and trends[gid] in ('rising', 'stable', 'declining'):
-                g[p]['trend'] = trends[gid]
+                if gid in trends and trends[gid] in ('rising', 'stable', 'declining'):
+                    g[p]['trend'] = trends[gid]
 
         # 样本取该题材在两端热度最高的三条
         merged = []
