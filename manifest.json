@@ -1,0 +1,27 @@
+{
+  "name": "漫剧雷达 · 选题工作台",
+  "short_name": "漫剧雷达",
+  "description": "AI 漫剧选题与运营工作台：题材机会榜、标题诊断、二创检索、发布复盘",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F4F0",
+  "theme_color": "#1B5E4F",
+  "categories": ["productivity", "business"],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
