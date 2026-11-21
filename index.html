@@ -335,6 +335,7 @@ select{appearance:none;background-image:url("data:image/svg+xml;charset=utf8,%3C
 .vthumb{width:74px;height:48px;border-radius:6px;background:#E8E6E0;object-fit:cover;flex:none}
 .vname{font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vsub{font-size:10.5px;color:var(--ink3);margin-top:3px}
+.vep{flex:none;width:26px;height:26px;border-radius:8px;background:var(--brand-soft);color:var(--brand);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
 
 .clip{display:flex;gap:11px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;box-shadow:0 1px 2px rgba(28,35,33,.03)}
 .clip:active{border-color:var(--line2)}
@@ -1612,7 +1613,7 @@ function clipRow(c, showProject){
 
   return '<div class="clip" data-id="' + c.id + '">' + thumb +
     '<div class="clip-main">' +
-      '<div class="clip-t">' + (c.start !== null && c.start !== undefined ? fmtTime(c.start) : '—') + ' · ' + esc(c.type) + '</div>' +
+      '<div class="clip-t">' + (c.ep ? '第' + c.ep + '集 · ' : '') + (c.start !== null && c.start !== undefined ? fmtTime(c.start) : '—') + ' · ' + esc(c.type) + '</div>' +
       '<div class="clip-n">' + esc(c.text || '（无描述）') + '</div>' +
       '<div class="clip-f">' + esc(meta.join(' · ')) + '</div>' +
     '</div>' +
@@ -1680,12 +1681,13 @@ function renderRework(){
 /* 导出打点清单：剪辑师或外包拿到原片 + 这份表，就能自己剪 */
 function exportClips(){
   if (!S.clips.length){ alert('素材库还是空的，先在项目里打几个点'); return; }
-  const rows = [['项目', '时间码', '台词', '标签', '类型', '状态']];
+  const rows = [['项目', '集数', '时间码', '台词', '标签', '类型', '状态']];
   S.clips.slice().sort(function(a, b){ return (a.start || 0) - (b.start || 0); })
     .forEach(function(c){
-      const p = S.projects.filter(function(x){ return x.id === c.pid; })[0];
+      const p = S.projects.filter(function(x){ return x.id === c.projectId; })[0];
       rows.push([
-        p ? p.title : '',
+        p ? p.name : '',
+        c.ep || 1,
         fmtTime(c.start || 0),
         c.text || '',
         (c.tags || []).join(' / '),
@@ -1817,85 +1819,122 @@ function renderDetail(){
   hydrateVideo(p);
 }
 
-function videoBlockHtml(p, rec){
-  if (!rec){
+function videoBlockHtml(p){
+  const list = (p.videos || []).slice().sort(function(a, b){ return (a.ep || 0) - (b.ep || 0); });
+  if (!list.length){
     return '<div class="vcard">' +
-      '<div style="font-size:11.5px;color:#939A96;line-height:1.6;margin-bottom:12px">视频只存在这台设备的浏览器里，不上传。<br>上传后可以播放打点、自动抽帧。</div>' +
+      '<div style="font-size:11.5px;color:#939A96;line-height:1.6;margin-bottom:12px">视频只存在这台设备的浏览器里，不上传。<br>可以传多集，每集单独打点。</div>' +
       '<label class="btn sm" style="display:inline-block;cursor:pointer">选择本地视频' +
-        '<input type="file" accept="video/*" id="videoFile" style="display:none"></label>' +
+        '<input type="file" accept="video/*" class="videoFile" multiple style="display:none"></label>' +
     '</div>';
   }
-  const url = videoURL(rec);
-  return '<div class="vcard has">' +
-    '<video class="vthumb" src="' + url + '" muted preload="metadata"></video>' +
-    '<div style="flex:1;min-width:0">' +
-      '<div class="vname">' + esc(rec.name) + '</div>' +
-      '<div class="vsub">' + fmtSize(rec.size) + (rec.duration ? ' · ' + fmtTime(rec.duration) : '') + '</div>' +
-    '</div>' +
-    '<button class="btn sm" id="playVideo">播放</button>' +
-  '</div>' +
-  '<div style="display:flex;gap:8px;margin-top:10px">' +
-    '<button class="btn ghost sm" id="delVideoBtn" style="flex:1">删除视频</button>' +
-    '<label class="btn ghost sm" style="flex:1;text-align:center;cursor:pointer">换一个' +
-      '<input type="file" accept="video/*" id="videoFile" style="display:none"></label>' +
-  '</div>';
+  return list.map(function(v){
+    return '<div class="vcard has" style="margin-bottom:8px">' +
+      '<div class="vep">' + (v.ep || 1) + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="vname">' + esc(v.name || ('第 ' + (v.ep || 1) + ' 集')) + '</div>' +
+        '<div class="vsub">' + fmtSize(v.size || 0) + (v.duration ? ' · ' + fmtTime(v.duration) : '') + '</div>' +
+      '</div>' +
+      '<button class="btn sm vplay" data-vid="' + v.id + '">播放</button>' +
+      '<button class="btn ghost sm vdel" data-vid="' + v.id + '" style="padding:7px 9px" title="删除这一集">×</button>' +
+    '</div>';
+  }).join('') +
+  '<label class="btn ghost sm" style="display:block;text-align:center;cursor:pointer;margin-top:2px">+ 再加一集' +
+    '<input type="file" accept="video/*" class="videoFile" multiple style="display:none"></label>';
+}
+
+/* 旧数据只有单个 videoId，这里迁移成数组 */
+function normalizeVideos(p){
+  if (!Array.isArray(p.videos)) p.videos = [];
+  if (p.videoId && !p.videos.some(function(v){ return v.id === p.videoId; })){
+    p.videos.push({ id: p.videoId, name: '', size: 0, duration: 0, ep: p.videos.length + 1 });
+  }
+  p.videos.forEach(function(v, i){ if (!v.ep) v.ep = i + 1; });
+  p.videos.sort(function(a, b){ return a.ep - b.ep; });
+  return p.videos;
 }
 
 function hydrateVideo(p){
   const slot = document.getElementById('vslot');
   if (!slot) return;
-  getVideo(p.videoId).then(function(rec){
-    p.videoRec = rec;
-    slot.innerHTML = videoBlockHtml(p, rec);
-
-    const fileEl = document.getElementById('videoFile');
-    if (fileEl){
-      fileEl.addEventListener('change', function(e){ handleVideoFile(p, e.target.files[0]); });
-    }
-    const playEl = document.getElementById('playVideo');
-    if (playEl){
-      playEl.addEventListener('click', function(){
-        if (rec) openPlayer(rec, null, p.id);
-      });
-    }
-    const delEl = document.getElementById('delVideoBtn');
-    if (delEl){
-      delEl.addEventListener('click', function(){
-        if (!confirm('删除这个视频？素材索引会保留，但预览会消失。')) return;
-        delVideo(p.videoId);
-        p.videoId = null; p.videoRec = null;
-        persist(); renderDetail();
-      });
-    }
+  const list = normalizeVideos(p);
+  const fixes = list.filter(function(v){ return !v.name; }).map(function(v){
+    return getVideo(v.id).then(function(rec){
+      if (rec){ v.name = rec.name; v.size = rec.size; v.duration = rec.duration; }
+    });
+  });
+  Promise.all(fixes).then(function(){
+    slot.innerHTML = videoBlockHtml(p);
+    bindVideoEvents(p);
   });
 }
 
-function handleVideoFile(p, file){
-  if (!file) return;
-  if (file.type.indexOf('video') !== 0){ alert('选一个视频文件'); return; }
-  const rec = { id: 'v' + Date.now(), name: file.name, size: file.size, type: file.type, duration: 0, blob: file };
-  const tmp = document.createElement('video');
-  tmp.preload = 'metadata';
-  const cleanup = function(){ try { tmp.removeAttribute('src'); tmp.load(); } catch (e) {} };
-
-  tmp.onloadedmetadata = function(){
-    rec.duration = tmp.duration || 0;
-    cleanup();
-    putVideo(rec).then(function(){
-      if (p.videoId && p.videoId !== rec.id) delVideo(p.videoId);
-      p.videoId = rec.id;
-      p.videoRec = rec;
-      persist();
-      renderDetail();
-    }).catch(function(){
-      alert('存不下了。换个小一点的视频，或者清理一下浏览器数据。');
+function bindVideoEvents(p){
+  Array.prototype.forEach.call(document.querySelectorAll('#vslot .videoFile'), function(el){
+    el.addEventListener('change', function(e){
+      const files = Array.prototype.slice.call(e.target.files || []);
+      el.value = '';
+      // 串行上传，多选时才不会把集数搞乱
+      files.reduce(function(chain, f){
+        return chain.then(function(){ return addVideoFile(p, f); });
+      }, Promise.resolve()).then(function(){ renderDetail(); });
     });
-  };
-  tmp.onerror = function(){
-    cleanup();
-    alert('这个格式读不了，试试 mp4。');
-  };
-  tmp.src = URL.createObjectURL(file);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#vslot .vplay'), function(el){
+    el.addEventListener('click', function(){
+      const vid = el.getAttribute('data-vid');
+      getVideo(vid).then(function(rec){
+        if (!rec){ alert('这一集的视频不在了'); return; }
+        openPlayer(rec, null, p.id, vid);
+      });
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#vslot .vdel'), function(el){
+    el.addEventListener('click', function(){
+      const vid = el.getAttribute('data-vid');
+      if (!confirm('删除这一集？打点记录会保留，但预览会失效。')) return;
+      delVideo(vid);
+      p.videos = (p.videos || []).filter(function(v){ return v.id !== vid; });
+      p.videos.forEach(function(v, i){ v.ep = i + 1; });
+      p.videoId = p.videos.length ? p.videos[0].id : null;
+      persist(); renderDetail();
+    });
+  });
+}
+
+function addVideoFile(p, file){
+  return new Promise(function(resolve){
+    if (!file) return resolve();
+    if (file.type.indexOf('video') !== 0){ alert('选一个视频文件'); return resolve(); }
+    const rec = {
+      id: 'v' + Date.now() + Math.floor(Math.random() * 1000),
+      name: file.name, size: file.size, type: file.type, duration: 0, blob: file
+    };
+    const tmp = document.createElement('video');
+    tmp.preload = 'metadata';
+    const cleanup = function(){ try { tmp.removeAttribute('src'); tmp.load(); } catch (e) {} };
+
+    tmp.onloadedmetadata = function(){
+      rec.duration = tmp.duration || 0;
+      cleanup();
+      putVideo(rec).then(function(){
+        if (!Array.isArray(p.videos)) p.videos = [];
+        p.videos.push({ id: rec.id, name: rec.name, size: rec.size, duration: rec.duration, ep: p.videos.length + 1 });
+        p.videoId = p.videos[0].id;
+        persist();
+        resolve();
+      }).catch(function(){
+        alert('存不下了。换个小一点的视频，或者清理一下浏览器数据。');
+        resolve();
+      });
+    };
+    tmp.onerror = function(){
+      cleanup();
+      alert('这个格式读不了，试试 mp4。');
+      resolve();
+    };
+    tmp.src = URL.createObjectURL(file);
+  });
 }
 
 /* ============================================================
@@ -1904,9 +1943,17 @@ function handleVideoFile(p, file){
 let pendingMark = null;
 let playerProjectId = null;
 
-function openPlayer(rec, at, pid){
+let currentVideo = null;
+
+function openPlayer(rec, at, pid, videoId){
   if (!rec){ alert('先上传一个视频'); return; }
   playerProjectId = pid || S.detailId || null;
+  const proj = S.projects.filter(function(x){ return x.id === playerProjectId; })[0];
+  const vmeta = proj && (proj.videos || []).filter(function(v){ return v.id === videoId; })[0];
+  currentVideo = {
+    id: videoId || (proj ? proj.videoId : null) || rec.id,
+    ep: vmeta ? vmeta.ep : 1
+  };
   const v = document.getElementById('playerVideo');
   v.src = videoURL(rec);
   document.getElementById('player').classList.add('on');
@@ -1933,13 +1980,14 @@ function jumpToClip(id){
   const c = S.clips.filter(function(x){ return x.id === id; })[0];
   if (!c) return;
   const p = S.projects.filter(function(x){ return x.id === c.projectId; })[0];
-  if (!p || !p.videoId){
+  const vid = c.videoId || (p && p.videoId);
+  if (!p || !vid){
     alert('这条素材关联的项目还没有本地视频，定位不了画面。');
     return;
   }
-  getVideo(p.videoId).then(function(rec){
-    if (!rec){ alert('视频不在了，可能被清理过。'); return; }
-    openPlayer(rec, c.start, c.projectId);
+  getVideo(vid).then(function(rec){
+    if (!rec){ alert('这一集的视频不在了，可能被清理过。'); return; }
+    openPlayer(rec, c.start, c.projectId, vid);
   });
 }
 
@@ -1988,7 +2036,8 @@ function saveMark(){
   S.clips.unshift({
     id: 'c' + Date.now(),
     projectId: playerProjectId || S.detailId,
-    ep: 1,
+    ep: currentVideo ? currentVideo.ep : 1,
+    videoId: currentVideo ? currentVideo.id : null,
     type: type,
     text: text,
     tags: tags,
