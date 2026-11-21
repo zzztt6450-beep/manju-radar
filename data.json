@@ -37,12 +37,12 @@
       "douyin": {
         "heat": 38,
         "count": 6,
-        "trend": "declining"
+        "trend": "rising"
       },
       "hongguo": {
-        "heat": 96,
-        "count": 22,
-        "trend": "stable"
+        "heat": 4,
+        "count": 26,
+        "trend": "rising"
       },
       "sequel": 0.78,
       "form": "3D 漫主导",
@@ -108,13 +108,13 @@
         "小区"
       ],
       "douyin": {
-        "heat": 95,
-        "count": 14,
+        "heat": 88,
+        "count": 25,
         "trend": "rising"
       },
       "hongguo": {
-        "heat": 48,
-        "count": 3,
+        "heat": 3,
+        "count": 13,
         "trend": "rising"
       },
       "sequel": 0.15,
@@ -128,15 +128,15 @@
           "why": ""
         },
         {
-          "n": "一屋烟火，两样人心",
-          "p": "抖音",
-          "h": "21.84亿",
+          "n": "悍妻当家，靠美食扶起一家软骨头",
+          "p": "红果",
+          "h": "—",
           "v": 1,
           "why": ""
         },
         {
-          "n": "一套学区房，让邻居盯上了我全家",
-          "p": "抖音",
+          "n": "山野杏林，助乡兴家",
+          "p": "红果",
           "h": "—",
           "v": 1,
           "why": ""
@@ -182,13 +182,13 @@
         "军婚"
       ],
       "douyin": {
-        "heat": 78,
-        "count": 10,
+        "heat": 100,
+        "count": 17,
         "trend": "stable"
       },
       "hongguo": {
-        "heat": 72,
-        "count": 8,
+        "heat": 3,
+        "count": 13,
         "trend": "stable"
       },
       "sequel": 0.52,
@@ -209,9 +209,9 @@
           "why": ""
         },
         {
-          "n": "七零高干：从村花到翻译官",
-          "p": "抖音",
-          "h": "9.5亿",
+          "n": "纨绔下乡·顽郎亦不负流年第三季",
+          "p": "红果",
+          "h": "5752万",
           "v": 1,
           "why": ""
         }
@@ -254,14 +254,14 @@
         "入宋"
       ],
       "douyin": {
-        "heat": 72,
+        "heat": 53,
         "count": 8,
-        "trend": "stable"
+        "trend": "rising"
       },
       "hongguo": {
-        "heat": 76,
-        "count": 9,
-        "trend": "stable"
+        "heat": 3,
+        "count": 10,
+        "trend": "rising"
       },
       "sequel": 0.48,
       "form": "3D 漫为主",
@@ -274,9 +274,16 @@
           "why": ""
         },
         {
-          "n": "穿书拒诰命，嫁得良人度流年",
-          "p": "抖音",
-          "h": "13.1亿",
+          "n": "持械入宋：第十一季",
+          "p": "红果",
+          "h": "—",
+          "v": 1,
+          "why": ""
+        },
+        {
+          "n": "持械入宋：第一季",
+          "p": "红果",
+          "h": "—",
           "v": 1,
           "why": ""
         }
@@ -317,22 +324,36 @@
         "认亲"
       ],
       "douyin": {
-        "heat": 86,
-        "count": 12,
+        "heat": 73,
+        "count": 8,
         "trend": "rising"
       },
       "hongguo": {
-        "heat": 52,
-        "count": 4,
+        "heat": 3,
+        "count": 10,
         "trend": "rising"
       },
       "sequel": 0.22,
       "form": "3D 漫为主",
       "samples": [
         {
-          "n": "东北后妈，整顿全家",
-          "p": "抖音",
-          "h": "18.06亿",
+          "n": "来自未来的女儿2",
+          "p": "红果",
+          "h": "5394万",
+          "v": 1,
+          "why": ""
+        },
+        {
+          "n": "十六年栽培一场空，我为女儿守住万家基业",
+          "p": "红果",
+          "h": "—",
+          "v": 1,
+          "why": ""
+        },
+        {
+          "n": "十八岁太奶奶驾到，重整家族荣耀第五部",
+          "p": "红果",
+          "h": "9687万",
           "v": 1,
           "why": ""
         }
@@ -371,8 +392,8 @@
         "极寒"
       ],
       "douyin": {
-        "heat": 30,
-        "count": 2,
+        "heat": 47,
+        "count": 8,
         "trend": "declining"
       },
       "hongguo": {
@@ -428,18 +449,25 @@
         "打卡"
       ],
       "douyin": {
-        "heat": 74,
-        "count": 9,
+        "heat": 73,
+        "count": 25,
         "trend": "stable"
       },
       "hongguo": {
         "heat": 55,
-        "count": 5,
+        "count": 3,
         "trend": "stable"
       },
       "sequel": 0.25,
       "form": "3D 漫为主",
       "samples": [
+        {
+          "n": "退役归来，这个保镖不好惹第二季",
+          "p": "红果",
+          "h": "—",
+          "v": 1,
+          "why": ""
+        },
         {
           "n": "同事请客，刷的却是我的卡",
           "p": "抖音",
@@ -493,12 +521,12 @@
       "douyin": {
         "heat": 68,
         "count": 7,
-        "trend": "stable"
+        "trend": "rising"
       },
       "hongguo": {
-        "heat": 88,
-        "count": 11,
-        "trend": "stable"
+        "heat": 4,
+        "count": 21,
+        "trend": "rising"
       },
       "sequel": 0.62,
       "form": "3D 漫 / AI 仿真人剧",
@@ -514,6 +542,13 @@
           "n": "重生后谁还嫁富二代",
           "p": "红果",
           "h": "—",
+          "v": 1,
+          "why": ""
+        },
+        {
+          "n": "十八岁太奶奶驾到，重整家族荣耀5",
+          "p": "红果",
+          "h": "12068万",
           "v": 1,
           "why": ""
         }
@@ -559,7 +594,7 @@
       },
       "hongguo": {
         "heat": 40,
-        "count": 2,
+        "count": 3,
         "trend": "stable"
       },
       "sequel": 0.2,
@@ -610,12 +645,12 @@
       ],
       "douyin": {
         "heat": 70,
-        "count": 4,
+        "count": 8,
         "trend": "rising"
       },
       "hongguo": {
-        "heat": 58,
-        "count": 4,
+        "heat": 3,
+        "count": 3,
         "trend": "rising"
       },
       "sequel": 0.3,
