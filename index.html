@@ -109,35 +109,37 @@ body{
 
 .brief{
   position:relative;overflow:hidden;
-  background:linear-gradient(135deg,
-    rgba(48,64,148,.88) 0%,
-    rgba(80,54,142,.84) 48%,
-    rgba(28,98,148,.88) 100%);
-  backdrop-filter:blur(32px) saturate(1.75);
-  -webkit-backdrop-filter:blur(32px) saturate(1.75);
-  color:#fff;border-radius:18px;padding:18px 19px;margin-top:4px;
-  border:1px solid rgba(255,255,255,.3);
-  box-shadow:
-    0 18px 40px -18px rgba(58,80,150,.45),
-    inset 0 1px 0 rgba(255,255,255,.42),
-    inset 0 -1px 0 rgba(255,255,255,.1);
-}
-.brief::after{
-  content:"";position:absolute;right:-52px;top:-52px;width:150px;height:150px;border-radius:50%;
-  border:1px solid rgba(255,255,255,.15);
-  box-shadow:0 0 0 16px rgba(255,255,255,.055),0 0 0 38px rgba(255,255,255,.028);
-  pointer-events:none;
+  background:#FAFAF7;
+  color:#1F211E;
+  border-radius:12px;padding:16px 17px 13px;margin-top:4px;
+  border:1px solid rgba(28,35,33,.08);
+  box-shadow:0 8px 20px -16px rgba(28,35,33,.3),0 1px 2px rgba(28,35,33,.03);
 }
 .brief::before{
-  content:"";position:absolute;right:22px;top:22px;width:5px;height:5px;border-radius:50%;
-  background:rgba(255,255,255,.85);box-shadow:0 0 10px 2px rgba(255,255,255,.45);
-  pointer-events:none;
+  content:"";position:absolute;left:0;right:0;top:0;height:1px;background:rgba(28,35,33,.12);
 }
-.brief>*{position:relative;z-index:1}
-.brief-k{font-size:10.5px;letter-spacing:1px;opacity:.85;text-transform:uppercase}
-.brief-v{font-size:15px;font-weight:500;margin-top:8px;line-height:1.5}
-.brief-v em{font-style:normal;font-size:19px;font-weight:600;letter-spacing:-.5px}
-.brief-d{font-size:11.5px;opacity:.7;margin-top:8px;line-height:1.55}
+.brief::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+  background-image:
+    repeating-radial-gradient(circle at 88% 6%,
+      rgba(28,35,33,.075) 0 1px,
+      transparent 1px 15px);
+  opacity:.95;
+}
+.brief>*{position:relative;z-index:3}
+.brief-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-bottom:10px;border-bottom:1px solid rgba(28,35,33,.14);
+}
+.brief-k{font-size:9.5px;letter-spacing:2.2px;font-weight:600;color:#6E736D}
+.brief-date{font-size:9.5px;letter-spacing:.4px;color:#959A95;font-variant-numeric:tabular-nums;flex:none}
+.brief-v{font-size:14px;line-height:1.7;margin-top:12px;color:#1F211E;letter-spacing:.1px;font-weight:500}
+.brief-v em{font-style:normal;font-size:22px;font-weight:700;letter-spacing:-.5px;color:#1F211E}
+.brief-d{font-size:11.5px;line-height:1.7;margin-top:9px;color:#6E736D}
+.brief-foot{
+  margin-top:11px;padding-top:8px;border-top:1px solid rgba(28,35,33,.1);
+  font-size:9.5px;letter-spacing:.3px;color:#959A95;display:flex;justify-content:space-between;gap:8px;
+}
 
 .seg{display:flex;gap:4px;background:#EBE9E3;border-radius:10px;padding:3px;margin-top:14px}
 .seg button{
@@ -423,9 +425,13 @@ select{appearance:none;background-image:url("data:image/svg+xml;charset=utf8,%3C
 
     <section class="page active" id="page-radar">
       <div class="brief">
-        <div class="brief-k">本周机会简报</div>
+        <div class="brief-head">
+          <div class="brief-k">本周机会简报</div>
+          <div class="brief-date" id="briefDate"></div>
+        </div>
         <div class="brief-v" id="briefV">正在读取…</div>
         <div class="brief-d" id="briefD"></div>
+        <div class="brief-foot"><span id="briefFootL"></span><span id="briefFootR"></span></div>
       </div>
       <div class="freshrow" id="freshRow"></div>
 
@@ -1059,6 +1065,13 @@ function renderRadar(){
   document.getElementById('briefD').textContent = bonus.length
     ? '另有 ' + bonus.length + ' 个题材出现时间差红利：' + bonus.map(function(g){ return g.name; }).join('、') + '。在' + PLATN[S.plat] + '端还没被填满。'
     : '当前没有明显的时间差机会，' + PLATN[S.plat] + '端的供给已经跟上了。建议等下一期榜单。';
+
+  const bDate = document.getElementById('briefDate');
+  if (bDate) bDate.textContent = (DATA.updated || '').replace(/-/g, '.');
+  const bfl = document.getElementById('briefFootL');
+  if (bfl) bfl.textContent = '数据截至 ' + (DATA.updated || '—');
+  const bfr = document.getElementById('briefFootR');
+  if (bfr) bfr.textContent = PLATN[S.plat] + '端 · ' + list.length + ' 个题材';
 
   document.getElementById('radarList').innerHTML = list.map(function(x, i){
     const g = x.g, r = x.r, c = colOf(r.total);
