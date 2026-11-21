@@ -197,29 +197,56 @@ def main():
     base = load_previous()
     before = json.dumps({'g': base.get('genres'), 'b': base.get('benchmark')}, sort_keys=True, ensure_ascii=False)
 
-    chunks = []
+    parsed = []
     for u in urls:
         try:
             t = fetch(u)
-            print('抓到 %d 字：%s' % (len(t), u))
-            if len(t) > 200:
-                chunks.append(t)
         except Exception as e:
-            print('抓取失败 %s：%s' % (u, e))
+            print('抓取失败 %s：%s' % (u, str(e)[:60]))
+            continue
+        if len(t) < 200:
+            print('正文太短，跳过：%s' % u)
+            continue
+        print('抓到 %4d 字：%s' % (len(t), u))
+        try:
+            r = ask_llm(t)
+            n = len(r.get('works') or [])
+            print('  解析出 %d 部' % n)
+            if n:
+                parsed.append(r)
+        except Exception as e:
+            print('  解析失败：%s' % str(e)[:70])
 
-    if not chunks:
-        print('所有源都抓不到内容，退出')
+    if not parsed:
+        print('所有源都解析失败，退出')
         sys.exit(1)
 
-    result = ask_llm('\n\n'.join(chunks))
-    works = result.get('works') or []
-    trends = result.get('trends') or {}
-    print('模型抽出 %d 部作品' % len(works))
+    # 多源合并去重：同一部剧出现在多个榜单，只算一次
+    works, seen = [], set()
+    for r in parsed:
+        for w in (r.get('works') or []):
+            key = (str(w.get('name', ''))[:40], w.get('platform'))
+            if key not in seen:
+                seen.add(key)
+                works.append(w)
+
+    trends = {}
+    for r in parsed:
+        for k, v in (r.get('trends') or {}).items():
+            if v in ('rising', 'stable', 'declining'):
+                trends[k] = v
+
+    print('合并去重后 %d 部作品（来自 %d 个源）' % (len(works), len(parsed)))
 
     # 榜单门槛（第 100 名）也跟着走，复盘页和标题页都靠它
-    bm = result.get('benchmark') or {}
+    bmv = {}
+    for r in parsed:
+        for k in ('hongguo', 'douyin'):
+            v = (r.get('benchmark') or {}).get(k) or {}
+            if k not in bmv and isinstance(v.get('value'), (int, float)) and v['value'] > 0:
+                bmv[k] = v
     for k in ('hongguo', 'douyin'):
-        v = bm.get(k) or {}
+        v = bmv.get(k) or {}
         val = v.get('value')
         if isinstance(val, (int, float)) and val > 0:
             unit = v.get('unit')
@@ -255,14 +282,23 @@ def main():
             if vals:
                 peak = max(peak, sum(vals) / len(vals))
 
-    enough = len(works) >= 30
+    enough = len(works) >= 40
     print('样本量 %d 部，%s' % (len(works), '足以更新评分字段' if enough else '偏少，只更新样本、不动评分'))
+
+    # 样本覆盖不到整张百强榜，所以按样本内占比外推到 100 部，
+    # 否则抓多抓少会直接改变供给空间，评分跟着忽高忽低
+    tot_p = {}
+    for p in ('hongguo', 'douyin'):
+        tot_p[p] = sum(counts[p].values()) or 1
 
     changed = 0
     for gid, g in by_id.items():
         if enough:
             for p in ('hongguo', 'douyin'):
-                g[p]['count'] = counts[p].get(gid, 0)
+                raw = counts[p].get(gid, 0)
+                # 样本里一次都没出现，不代表它不在榜，保持原值不动
+                if raw > 0:
+                    g[p]['count'] = int(round(raw * 100.0 / tot_p[p]))
 
                 vals = [v for v in heats[p].get(gid, []) if v > 0]
                 if vals:
