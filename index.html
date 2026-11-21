@@ -461,6 +461,7 @@ select{appearance:none;background-image:url("data:image/svg+xml;charset=utf8,%3C
       </div>
       <div class="ph" style="margin-top:16px">
         <span>共 <b id="reworkCount">0</b> 条素材</span>
+        <button class="btn ghost sm" id="clipExport">导出清单</button>
       </div>
       <div id="reworkList"></div>
     </section>
@@ -1667,6 +1668,39 @@ function renderRework(){
   bindClips(box);
 }
 
+/* 导出打点清单：剪辑师或外包拿到原片 + 这份表，就能自己剪 */
+function exportClips(){
+  if (!S.clips.length){ alert('素材库还是空的，先在项目里打几个点'); return; }
+  const rows = [['项目', '时间码', '台词', '标签', '类型', '状态']];
+  S.clips.slice().sort(function(a, b){ return (a.start || 0) - (b.start || 0); })
+    .forEach(function(c){
+      const p = S.projects.filter(function(x){ return x.id === c.pid; })[0];
+      rows.push([
+        p ? p.title : '',
+        fmtTime(c.start || 0),
+        c.text || '',
+        (c.tags || []).join(' / '),
+        c.type || '',
+        c.used ? '已用' : '未用'
+      ]);
+    });
+  const csv = rows.map(function(r){
+    return r.map(function(x){
+      const s = String(x).replace(/"/g, '""');
+      return /[",\n\r]/.test(s) ? '"' + s + '"' : s;
+    }).join(',');
+  }).join('\r\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '漫剧素材清单_' + (DATA.updated || '') + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+}
+
 /* ============================================================
    项目详情
    ============================================================ */
@@ -2326,6 +2360,7 @@ function init(){
 
   const searchEl = document.getElementById('clipSearch');
   searchEl.addEventListener('input', function(){ S.clipQuery = this.value; renderRework(); });
+  document.getElementById('clipExport').addEventListener('click', exportClips);
   document.getElementById('clipSearchBtn').addEventListener('click', function(){
     S.clipQuery = searchEl.value;
     renderRework();
