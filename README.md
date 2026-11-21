@@ -6,6 +6,15 @@
 
 形态：单文件 Web App（PWA），可安装到手机桌面，打开无地址栏。数据由 GitHub Actions 定时抓取更新。
 
+<table>
+  <tr>
+    <td align="center" width="25%"><img src="assets/screens/01-radar.jpg" width="170"><br><sub><b>雷达</b><br>机会榜 + 本周简报</sub></td>
+    <td align="center" width="25%"><img src="assets/screens/02-title.jpg" width="170"><br><sub><b>标题工坊</b><br>四维结构诊断</sub></td>
+    <td align="center" width="25%"><img src="assets/screens/03-rework.jpg" width="170"><br><sub><b>二创库</b><br>台词与标签检索</sub></td>
+    <td align="center" width="25%"><img src="assets/screens/04-project.jpg" width="170"><br><sub><b>项目详情</b><br>多集视频 + 打点</sub></td>
+  </tr>
+</table>
+
 ---
 
 ## 五个模块
@@ -243,6 +252,7 @@ App 打开时 fetch ./data.json（no-store，不读缓存）
 | `data.json` | 题材数据，由管道自动更新 |
 | `manifest.json` | PWA 清单 |
 | `icon-*.png` / `apple-touch-icon.png` | 应用图标 |
+| `assets/screens/` | README 展示截图 |
 | `auto/fetch_data.py` | 抓取 + 结构化脚本 |
 | `auto/README.md` | 管道配置说明 |
 | `.github/workflows/update.yml` | 定时任务 |
