@@ -1,0 +1,43 @@
+name: 更新漫剧数据
+
+on:
+  schedule:
+    # 每 3 天一次（每月 1、4、7 … 日）。cron 的 */3 跨月时会多跑一次，无影响。
+    - cron: '0 2 */3 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 装依赖
+        run: pip install -r auto/requirements.txt
+
+      - name: 抓取榜单并生成 data.json
+        env:
+          SOURCE_URLS: ${{ secrets.SOURCE_URLS }}
+          LLM_KEY: ${{ secrets.LLM_KEY }}
+          LLM_BASE: ${{ secrets.LLM_BASE }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+        run: python auto/fetch_data.py
+
+      - name: 提交结果
+        run: |
+          git config user.name "manju-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data.json
+          if git diff --cached --quiet; then
+            echo "这次没有变化"
+          else
+            git commit -m "data: auto update $(date +%F)"
+            git push
+          fi
