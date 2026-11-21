@@ -61,13 +61,19 @@ PROMPT = """你是 AI 短剧行业分析师。下面是从一篇榜单文章里�
 - "trends"：形如 {"shijing": "rising"}，只填文章里明确提到趋势的题材
 - 取值只能是 rising / stable / declining
 
+再抽一下榜单门槛（第 100 名的数据）：
+- "benchmark"：形如 {"hongguo": {"value": 5868, "unit": "万"}, "douyin": {"value": 4.49, "unit": "亿"}}
+- hongguo 填红果榜第 100 名的峰值热度，douyin 填抖音榜第 100 名的播放增量
+- unit 只能用 "万" 或 "亿"，value 只填数字
+- 文章里没明确写就别给这个字段，不要猜
+
 硬性要求：
 1. 只输出 JSON，不要任何解释文字
 2. 不要编造文章里没有出现的作品
 3. 拿不准题材的作品，genre 填 ""
 
 输出格式：
-{"works": [{"name": "...", "platform": "hongguo", "heat": "11578万", "genre": "xuanhuan"}], "trends": {}}
+{"works": [{"name": "...", "platform": "hongguo", "heat": "11578万", "genre": "xuanhuan"}], "trends": {}, "benchmark": {"hongguo": {"value": 5868, "unit": "万"}, "douyin": {"value": 4.49, "unit": "亿"}}}
 
 文章正文：
 ---
@@ -189,7 +195,7 @@ def main():
         sys.exit(1)
 
     base = load_previous()
-    before = json.dumps(base.get('genres'), sort_keys=True, ensure_ascii=False)
+    before = json.dumps({'g': base.get('genres'), 'b': base.get('benchmark')}, sort_keys=True, ensure_ascii=False)
 
     chunks = []
     for u in urls:
@@ -209,6 +215,18 @@ def main():
     works = result.get('works') or []
     trends = result.get('trends') or {}
     print('模型抽出 %d 部作品' % len(works))
+
+    # 榜单门槛（第 100 名）也跟着走，复盘页和标题页都靠它
+    bm = result.get('benchmark') or {}
+    for k in ('hongguo', 'douyin'):
+        v = bm.get(k) or {}
+        val = v.get('value')
+        if isinstance(val, (int, float)) and val > 0:
+            unit = v.get('unit')
+            base['benchmark'][k]['threshold'] = val
+            if unit in ('万', '亿'):
+                base['benchmark'][k]['unit'] = unit
+            print('门槛更新 %s：%s%s' % (k, val, base['benchmark'][k]['unit']))
 
     if len(works) < 5:
         print('抽取结果太少（可能不是榜单页），放弃这次更新')
@@ -268,7 +286,7 @@ def main():
             g['samples'] = merged[:3]
             changed += 1
 
-    after = json.dumps(base.get('genres'), sort_keys=True, ensure_ascii=False)
+    after = json.dumps({'g': base.get('genres'), 'b': base.get('benchmark')}, sort_keys=True, ensure_ascii=False)
 
     if before == after:
         print('抓到的还是同一批作品，数据无实质变化')
