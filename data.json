@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-21",
+  "updated": "2026-11-22",
   "benchmark": {
     "hongguo": {
       "threshold": 5868,
@@ -41,7 +41,7 @@
       },
       "hongguo": {
         "heat": 4,
-        "count": 26,
+        "count": 28,
         "trend": "rising"
       },
       "sequel": 0.78,
@@ -114,7 +114,7 @@
       },
       "hongguo": {
         "heat": 3,
-        "count": 13,
+        "count": 12,
         "trend": "rising"
       },
       "sequel": 0.15,
@@ -329,20 +329,13 @@
         "trend": "rising"
       },
       "hongguo": {
-        "heat": 4,
-        "count": 13,
+        "heat": 3,
+        "count": 10,
         "trend": "rising"
       },
       "sequel": 0.22,
       "form": "3D 漫为主",
       "samples": [
-        {
-          "n": "十八岁太奶奶驾到，重整家族荣耀5",
-          "p": "红果",
-          "h": "12068万",
-          "v": 1,
-          "why": ""
-        },
         {
           "n": "来自未来的女儿2",
           "p": "红果",
@@ -354,6 +347,13 @@
           "n": "十六年栽培一场空，我为女儿守住万家基业",
           "p": "红果",
           "h": "—",
+          "v": 1,
+          "why": ""
+        },
+        {
+          "n": "十八岁太奶奶驾到，重整家族荣耀第五部",
+          "p": "红果",
+          "h": "9687万",
           "v": 1,
           "why": ""
         }
@@ -455,7 +455,7 @@
       },
       "hongguo": {
         "heat": 55,
-        "count": 3,
+        "count": 2,
         "trend": "stable"
       },
       "sequel": 0.25,
@@ -524,8 +524,8 @@
         "trend": "rising"
       },
       "hongguo": {
-        "heat": 3,
-        "count": 18,
+        "heat": 4,
+        "count": 20,
         "trend": "rising"
       },
       "sequel": 0.62,
@@ -546,9 +546,9 @@
           "why": ""
         },
         {
-          "n": "夕阳红顶流，大爷大妈助我乐坛封神第二季",
+          "n": "十八岁太奶奶驾到，重整家族荣耀5",
           "p": "红果",
-          "h": "5385万",
+          "h": "12068万",
           "v": 1,
           "why": ""
         }
@@ -594,7 +594,7 @@
       },
       "hongguo": {
         "heat": 40,
-        "count": 3,
+        "count": 2,
         "trend": "stable"
       },
       "sequel": 0.2,
@@ -650,7 +650,7 @@
       },
       "hongguo": {
         "heat": 3,
-        "count": 3,
+        "count": 2,
         "trend": "rising"
       },
       "sequel": 0.3,
