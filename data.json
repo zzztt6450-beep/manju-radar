@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-22",
+  "updated": "2026-11-25",
   "benchmark": {
     "hongguo": {
       "threshold": 5868,
@@ -41,7 +41,7 @@
       },
       "hongguo": {
         "heat": 4,
-        "count": 28,
+        "count": 26,
         "trend": "rising"
       },
       "sequel": 0.78,
@@ -114,7 +114,7 @@
       },
       "hongguo": {
         "heat": 3,
-        "count": 12,
+        "count": 13,
         "trend": "rising"
       },
       "sequel": 0.15,
@@ -455,7 +455,7 @@
       },
       "hongguo": {
         "heat": 55,
-        "count": 2,
+        "count": 3,
         "trend": "stable"
       },
       "sequel": 0.25,
@@ -525,7 +525,7 @@
       },
       "hongguo": {
         "heat": 4,
-        "count": 20,
+        "count": 21,
         "trend": "rising"
       },
       "sequel": 0.62,
@@ -594,7 +594,7 @@
       },
       "hongguo": {
         "heat": 40,
-        "count": 2,
+        "count": 3,
         "trend": "stable"
       },
       "sequel": 0.2,
@@ -650,7 +650,7 @@
       },
       "hongguo": {
         "heat": 3,
-        "count": 2,
+        "count": 3,
         "trend": "rising"
       },
       "sequel": 0.3,
